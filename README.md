@@ -12,6 +12,8 @@
 ## <div align="center">Deep Directly-Trained Spiking Neural Networks for Object Detection [(ICCV2023)](https://openaccess.thecvf.com/content/ICCV2023/html/Su_Deep_Directly-Trained_Spiking_Neural_Networks_for_Object_Detection_ICCV_2023_paper.html)</div>
 </div>
 
+This project is used only for study by cjsy18114! 
+
 ### Requirements
 
 The code has been tested with pytorch=1.10.1,py=3.8, cuda=11.3, cudnn=8.2.0_0 . The conda environment can be copied directly via <b>environment.yml</b>. Some additional dependencies can be found in the  <b>environment.txt</b>.
@@ -21,7 +23,7 @@ The code has been tested with pytorch=1.10.1,py=3.8, cuda=11.3, cudnn=8.2.0_0 . 
 <summary>Install</summary>
 
 ```bash
-$ git clone https://github.com/BICLab/EMS-YOLO.git
+$ git clone https://github.com/cjsy18114/EMS-YOLO-cjsy18114.git
 $ pip install -r requirements.txt
 ```
 

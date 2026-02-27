@@ -18,6 +18,9 @@ import torch.nn.functional as F
 
 from utils.general import (LOGGER, check_requirements, check_suffix, colorstr, increment_path, make_divisible,
                            non_max_suppression, scale_coords, xywh2xyxy, xyxy2xywh)
+
+# visualizer decorator for capturing intermediate tensors during forward passes
+from visualizer import get_local
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import time_sync
 
@@ -59,6 +62,7 @@ class mem_update(nn.Module):
         self.actFun = nn.SiLU()
         self.act=act
 
+    @get_local('output')  # record output tensor values each call
     def forward(self, x):
         mem = torch.zeros_like(x[0]).to(x.device)
         spike = torch.zeros_like(x[0]).to(x.device)
@@ -636,7 +640,18 @@ class DetectMultiBackend(nn.Module):
 
     def forward(self, im, augment=False, visualize=False, val=False):#val执行这里
         #  MultiBackend inference
-        b, T, ch, h, w = im.shape  # batch, channel, height, width
+        # Some models (e.g. SNN variants) expect a time dimension T but
+        # the wrapper may be given a plain 4D tensor [B,C,H,W].  In that
+        # case insert a singleton T=1 dimension so downstream code works
+        # as before.
+        if im.ndim == 4:  
+            b, ch, h, w = im.shape  # batch, channel, height, width
+            T = 1  
+        elif im.ndim == 5:
+            b, T, ch, h, w = im.shape  # batch, time, channel, height, width
+        else:
+            raise ValueError(f'Unsupported image shape {im.shape} for {type(self.model).__name__} forward()')  # error
+        
         if self.pt:  # PyTorch
             y = self.model(im) if self.jit else self.model(im, augment=augment, visualize=visualize)
             return y if val else y[0]

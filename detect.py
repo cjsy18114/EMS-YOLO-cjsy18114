@@ -16,6 +16,10 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 from visualizer import get_local
 get_local.activate()
 
+# 添加调试代码
+print(f"Visualizer activated: {get_local}")
+print(f"Hooks registered: {len(get_local.cache)}")
+
 import numpy as np
 from models.common import DetectMultiBackend
 from utils.datasets import IMG_FORMATS, VID_FORMATS, LoadImages, LoadStreams
@@ -82,6 +86,9 @@ def run(weights=ROOT / 'yolov3.pt',  # model.pt path(s)
     # Load model
     device = select_device(device)
     model = DetectMultiBackend(weights, device=device, dnn=dnn)
+    # ===== 调试检查 2 =====
+    print('visualizer cache keys after model load:', list(get_local.cache.keys()), flush=True)
+    # ========================
     stride, names, pt, jit, onnx = model.stride, model.names, model.pt, model.jit, model.onnx
     imgsz = check_img_size(imgsz, s=stride)  # check image size
     
@@ -161,6 +168,7 @@ def run(weights=ROOT / 'yolov3.pt',  # model.pt path(s)
 
         FR.append(fr)
         SZ.append(sz)
+        '''''
         attention_name = "ChannelAttention.forward"
         for att_index in range(len(cache[attention_name])):
             att_map = cache[attention_name][att_index][0,0,:,:,:]
@@ -174,7 +182,14 @@ def run(weights=ROOT / 'yolov3.pt',  # model.pt path(s)
         for att_index in range(len(cache[attention_name])):
             att_map = cache[attention_name][att_index][0,0,0,:,:]
             # visualize_grid_to_grid(save_dir,att_index,attention_name,att_map,image)
-        
+        '''''
+        attention_names = ["ChannelAttention.forward", "SpatialAttention.forward", "CSA.forward"]
+        for attention_name in attention_names:
+            if attention_name in cache:  # ✅ 先检查键是否存在
+                for att_index in range(len(cache[attention_name])):
+                    att_map = cache[attention_name][att_index]
+                    # 可以在这里处理 att_map...
+
         get_local.clear()
 
 
@@ -228,7 +243,7 @@ def run(weights=ROOT / 'yolov3.pt',  # model.pt path(s)
                 cv2.waitKey(1)  # 1 millisecond
 
             # Save results (image with detections)
-            save_img=False
+            save_img=True  # 强制保存图像以进行调试
             if save_img:
                 if dataset.mode == 'image':
                     cv2.imwrite(save_path, im0)

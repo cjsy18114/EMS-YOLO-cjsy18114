@@ -13,6 +13,7 @@
 </div>
 
 This project is used only for study by cjsy18114! 
+To visit the website, please click [here](https://github.com/cjsy18114/EMS-YOLO-cjsy18114) !
 
 ### Requirements
 
@@ -67,9 +68,13 @@ python calculate_fr.py
 
 ### Supplementary Note1
 When running on the COCO dataset, make sure to modify line 118 in the yolo.py file to:
-
+```python
 m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1, ch, s, s))])  # forward
-
+```
+The original code on this line is:
+```python
+m.stride = torch.tensor([s / x.shape[-2] for x in self.forward(torch.zeros(1, time_window, ch, s, s))])  # forward
+```
 ### Supplementary Note2
 The parameter size of ResNet34 was incorrectly reported in the paper; the correct value should be over 30M.
 
